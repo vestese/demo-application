@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>DiploChain — Recruteur</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:       #2563EB;
+  --blue-dark:  #1D4ED8;
+  --blue-light: #EFF6FF;
+  --blue-mid:   #DBEAFE;
+  --green:      #16A34A;
+  --green-bg:   #F0FDF4;
+  --green-border:#86EFAC;
+  --red:        #DC2626;
+  --red-bg:     #FFF5F5;
+  --red-border: #FCA5A5;
+  --gray-50:    #F9FAFB;
+  --gray-100:   #F3F4F6;
+  --gray-200:   #E5E7EB;
+  --gray-300:   #D1D5DB;
+  --gray-400:   #9CA3AF;
+  --gray-500:   #6B7280;
+  --gray-600:   #4B5563;
+  --gray-700:   #374151;
+  --gray-800:   #1F2937;
+  --gray-900:   #111827;
+  --white:      #FFFFFF;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-800);
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+/* ── STATUS BAR SIMULATION ── */
+.status-bar {
+  background: var(--blue);
+  padding: 10px 20px 6px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.status-time { color: white; font-size: 0.78rem; font-weight: 600; }
+.status-icons { color: white; font-size: 0.78rem; letter-spacing: 2px; }
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--blue);
+  padding: 14px 20px 20px;
+  color: white;
+}
+.header-top {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 18px;
+}
+.header-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.header-logo {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center;
+  justify-content: center; font-size: 1.1rem;
+}
+.header-name {
+  font-size: 1.05rem; font-weight: 700;
+}
+.header-tag {
+  font-size: 0.7rem; opacity: 0.75;
+  background: rgba(255,255,255,0.15);
+  padding: 3px 10px; border-radius: 20px;
+}
+.header-greeting {
+  font-size: 0.78rem; opacity: 0.75; margin-bottom: 4px;
+}
+.header-title {
+  font-size: 1.2rem; font-weight: 700; line-height: 1.3;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── SEARCH SCREEN ── */
+.search-screen { padding: 20px 16px; }
+
+.search-card {
+  background: white; border-radius: 16px;
+  padding: 20px; margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--gray-200);
+}
+.search-card-title {
+  font-size: 0.825rem; font-weight: 700;
+  color: var(--gray-500); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 14px;
+}
+
+.input-wrap {
+  display: flex; gap: 10px; margin-bottom: 12px;
+}
+.input-field {
+  flex: 1; padding: 14px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px; outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem; color: var(--gray-800);
+  background: var(--gray-50);
+  transition: all 0.2s;
+  -webkit-appearance: none;
+}
+.input-field:focus {
+  border-color: var(--blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+.input-field::placeholder { color: var(--gray-400); font-size: 0.9rem; }
+
+.btn-scan {
+  width: 50px; height: 50px; flex-shrink: 0;
+  background: var(--blue-light); border: 1.5px solid var(--blue-mid);
+  border-radius: 12px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 1.3rem; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-scan:active { transform: scale(0.94); background: var(--blue-mid); }
+
+.btn-verify-main {
+  width: 100%; padding: 16px;
+  background: var(--blue); color: white;
+  border: none; border-radius: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem; font-weight: 700;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.15s;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+}
+.btn-verify-main:active { transform: scale(0.98); background: var(--blue-dark); }
+
+/* Quick IDs */
+.quick-title {
+  font-size: 0.78rem; color: var(--gray-500);
+  font-weight: 600; margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.quick-ids {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.quick-id {
+  padding: 7px 14px;
+  background: var(--blue-light);
+  border: 1px solid var(--blue-mid);
+  border-radius: 20px;
+  font-size: 0.8rem; font-weight: 600; color: var(--blue);
+  cursor: pointer; transition: all 0.15s;
+  font-family: 'DM Mono', monospace;
+}
+.quick-id:active { background: var(--blue-mid); transform: scale(0.96); }
+
+/* Stats row */
+.stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-mini {
+  background: white; border-radius: 14px;
+  padding: 14px 12px; text-align: center;
+  border: 1px solid var(--gray-200);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.stat-mini-num {
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--blue); display: block; line-height: 1;
+}
+.stat-mini-label {
+  font-size: 0.7rem; color: var(--gray-400);
+  margin-top: 4px; line-height: 1.3;
+}
+
+/* Recent verifications */
+.recent-card {
+  background: white; border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.recent-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.825rem; font-weight: 700;
+  color: var(--gray-500); text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.recent-item {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background 0.15s;
+}
+.recent-item:last-child { border-bottom: none; }
+.recent-item:active { background: var(--gray-50); }
+.recent-dot {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.recent-dot.ok  { background: var(--green-bg); }
+.recent-dot.bad { background: var(--red-bg); }
+.recent-info { flex: 1; min-width: 0; }
+.recent-name {
+  font-size: 0.875rem; font-weight: 600;
+  color: var(--gray-800); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.recent-id {
+  font-size: 0.75rem; color: var(--gray-400);
+  font-family: 'DM Mono', monospace; margin-top: 2px;
+}
+.recent-badge {
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+}
+.recent-badge.ok  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.recent-badge.bad { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+
+/* ── CHECKING SCREEN ── */
+.checking-screen {
+  min-height: calc(100vh - 110px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px; text-align: center;
+}
+.checking-screen.active { display: flex; }
+
+.scanner-anim {
+  width: 120px; height: 120px;
+  position: relative; margin: 0 auto 28px;
+}
+.scanner-outer {
+  position: absolute; inset: 0;
+  border: 2px solid var(--gray-200); border-radius: 50%;
+}
+.scanner-mid {
+  position: absolute; inset: 16px;
+  border: 2px solid var(--blue-mid); border-radius: 50%;
+  animation: spin-slow 3s linear infinite;
+}
+.scanner-inner {
+  position: absolute; inset: 32px;
+  border: 3px solid transparent;
+  border-top-color: var(--blue);
+  border-right-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.scanner-dot {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.scanner-dot::after {
+  content: '🛡';
+  font-size: 1.8rem;
+  animation: pulse-icon 1.5s ease-in-out infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin-slow { to { transform: rotate(-360deg); } }
+@keyframes pulse-icon {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%       { transform: scale(1.1); opacity: 1; }
+}
+
+.checking-title {
+  font-size: 1.2rem; font-weight: 700;
+  color: var(--gray-900); margin-bottom: 8px;
+}
+.checking-sub {
+  font-size: 0.875rem; color: var(--gray-500); margin-bottom: 28px;
+}
+.chain-steps {
+  width: 100%; max-width: 300px;
+  background: white; border-radius: 14px;
+  padding: 16px; border: 1px solid var(--gray-200);
+}
+.chain-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0; font-size: 0.85rem;
+  color: var(--gray-300); transition: color 0.3s;
+}
+.chain-step + .chain-step { border-top: 1px solid var(--gray-100); }
+.chain-step.done   { color: var(--green); }
+.chain-step.active { color: var(--blue); font-weight: 600; }
+.cs-icon {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; transition: all 0.3s;
+}
+.chain-step.done .cs-icon {
+  background: var(--green); border-color: var(--green); color: white;
+}
+.chain-step.active .cs-icon {
+  animation: pulse-step 0.8s ease infinite;
+}
+@keyframes pulse-step {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.3); }
+  50%       { box-shadow: 0 0 0 6px rgba(37,99,235,0); }
+}
+
+.chain-hash {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--gray-100);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; color: var(--gray-300);
+  text-align: left; word-break: break-all;
+  line-height: 1.6;
+}
+
+/* ── RESULT SCREEN ── */
+.result-screen {
+  padding: 16px;
+  min-height: calc(100vh - 110px);
+}
+.result-screen.active { display: block; }
+
+.result-hero {
+  border-radius: 20px; padding: 28px 20px;
+  text-align: center; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+}
+.result-hero.valid {
+  background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+}
+.result-hero.invalid {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+}
+.result-hero::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.06); border-radius: 50%;
+}
+
+.result-big-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; margin: 0 auto 16px;
+  position: relative; z-index: 1;
+}
+.result-hero-title {
+  font-size: 1.5rem; font-weight: 800;
+  color: white; margin-bottom: 6px;
+  position: relative; z-index: 1;
+}
+.result-hero-sub {
+  font-size: 0.825rem; color: rgba(255,255,255,0.75);
+  position: relative; z-index: 1;
+}
+.result-id-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.15); color: white;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 600; margin-top: 10px;
+  font-family: 'DM Mono', monospace;
+  position: relative; z-index: 1;
+}
+
+/* Result details card */
+.details-card {
+  background: white; border-radius: 16px;
+  border: 1px solid var(--gray-200);
+  overflow: hidden; margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.details-card-title {
+  padding: 14px 16px 10px;
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--gray-100);
+}
+.detail-row {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  gap: 12px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label {
+  font-size: 0.8rem; color: var(--gray-400);
+  font-weight: 500; flex-shrink: 0; padding-top: 1px;
+}
+.detail-value {
+  font-size: 0.875rem; font-weight: 600;
+  color: var(--gray-800); text-align: right;
+}
+
+/* Blockchain proof */
+.proof-card {
+  background: var(--gray-900); border-radius: 16px;
+  padding: 16px; margin-bottom: 14px;
+}
+.proof-title {
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.proof-title::before { content: '🔗'; font-size: 0.9rem; }
+.proof-hash {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; color: #4ADE80;
+  word-break: break-all; line-height: 1.7;
+  background: rgba(255,255,255,0.05);
+  padding: 10px; border-radius: 8px;
+}
+.proof-network {
+  display: flex; justify-content: space-between;
+  margin-top: 10px; font-size: 0.75rem;
+  color: var(--gray-500);
+}
+.proof-network span { color: #60A5FA; font-weight: 600; }
+
+/* Action buttons */
+.action-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+.btn-action {
+  flex: 1; padding: 14px;
+  border-radius: 14px; border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center;
+  justify-content: center; gap: 6px;
+}
+.btn-action:active { transform: scale(0.97); }
+.btn-back {
+  background: var(--gray-100); color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}
+.btn-new {
+  background: var(--blue); color: white;
+  box-shadow: 0 3px 10px rgba(37,99,235,0.3);
+}
+
+/* Invalid extra info */
+.warning-card {
+  background: var(--red-bg); border-radius: 16px;
+  border: 1px solid var(--red-border);
+  padding: 16px; margin-bottom: 14px;
+}
+.warning-card h3 {
+  font-size: 0.875rem; font-weight: 700;
+  color: var(--red); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.warning-card p {
+  font-size: 0.825rem; color: #7F1D1D; line-height: 1.6;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--gray-200);
+  display: flex; padding: 8px 0 16px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  z-index: 50;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; transition: all 0.15s;
+  padding: 4px 0;
+}
+.nav-item:active { transform: scale(0.92); }
+.nav-icon { font-size: 1.25rem; }
+.nav-label {
+  font-size: 0.68rem; font-weight: 500;
+  color: var(--gray-400);
+}
+.nav-item.active .nav-label { color: var(--blue); font-weight: 700; }
+.nav-item.active .nav-icon { filter: none; }
+
+/* Scroll padding for bottom nav */
+.screen { padding-bottom: 80px; }
+
+/* ── HISTORY SCREEN ── */
+.history-screen { padding: 20px 16px; }
+.history-screen.active { display: block; }
+
+.history-header-row {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 16px;
+}
+.history-title { font-size: 1.1rem; font-weight: 700; }
+.btn-clear {
+  font-size: 0.78rem; color: var(--red); font-weight: 600;
+  background: none; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item {
+  background: white; border-radius: 14px;
+  border: 1px solid var(--gray-200);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.history-item:active { transform: scale(0.98); background: var(--gray-50); }
+.history-result-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.history-result-dot.ok  { background: var(--green); }
+.history-result-dot.bad { background: var(--red); }
+.history-info { flex: 1; }
+.history-name { font-size: 0.875rem; font-weight: 600; }
+.history-meta { font-size: 0.75rem; color: var(--gray-400); margin-top: 2px; font-family: 'DM Mono', monospace; }
+.history-time { font-size: 0.72rem; color: var(--gray-400); }
+</style>
+</head>
+<body>
+
+<!-- ── STATUS BAR ── -->
+<div class="status-bar">
+  <span class="status-time" id="statusTime">09:41</span>
+  <span class="status-icons">● ● ▐▐ 🔋</span>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="app-header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">🛡</div>
+      <span class="header-name">DiploChain</span>
+    </div>
+    <div class="header-tag">Recruteur</div>
+  </div>
+  <p class="header-greeting">Bonjour, bienvenue sur</p>
+  <p class="header-title">Vérification rapide de diplômes</p>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 1 — ACCUEIL / SEARCH
+══════════════════════════════ -->
+<div class="screen active" id="screenSearch">
+  <div class="search-screen">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <span class="stat-mini-num" id="statTotal">4</span>
+        <span class="stat-mini-label">Vérifiés</span>
+      </div>
+      <div class="stat-mini">
+        <span class="stat-mini-num" style="color:var(--green)" id="statValides">4</span>
+        <span class="stat-mini-label">Valides</span>
+      </div>
+      <div class="stat-mini">
+        <span class="stat-mini-num" style="color:var(--red)" id="statFaux">0</span>
+        <span class="stat-mini-label">Faux</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-card">
+      <p class="search-card-title">Vérifier un diplôme</p>
+      <div class="input-wrap">
+        <input type="text" class="input-field" id="mobileInput"
+          placeholder="ID du diplôme (ex: BF-01-2026)"
+          autocomplete="off" autocorrect="off" autocapitalize="characters"
+          onkeydown="if(event.key==='Enter') lancerVerif()"/>
+        <div class="btn-scan" onclick="scanQR()" title="Scanner QR">📷</div>
+      </div>
+      <button class="btn-verify-main" onclick="lancerVerif()">
+        🔍 Vérifier maintenant
+      </button>
+    </div>
+
+    <!-- Quick IDs -->
+    <div style="margin-bottom:16px;">
+      <p class="quick-title">Accès rapide — IDs de démo</p>
+      <div class="quick-ids">
+        <div class="quick-id" onclick="setAndVerify('BF-01-2026')">BF-01-2026</div>
+        <div class="quick-id" onclick="setAndVerify('BF-02-2026')">BF-02-2026</div>
+        <div class="quick-id" onclick="setAndVerify('BF-03-2026')">BF-03-2026</div>
+        <div class="quick-id" onclick="setAndVerify('FAUX-999')">FAUX-999 ❌</div>
+      </div>
+    </div>
+
+    <!-- Recent -->
+    <div class="recent-card" id="recentCard">
+      <div class="recent-header">Vérifications récentes</div>
+      <div id="recentList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 2 — CHECKING
+══════════════════════════════ -->
+<div class="screen" id="screenChecking">
+  <div class="checking-screen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;min-height:calc(100vh - 110px)">
+
+    <div class="scanner-anim">
+      <div class="scanner-outer"></div>
+      <div class="scanner-mid"></div>
+      <div class="scanner-inner"></div>
+      <div class="scanner-dot"></div>
+    </div>
+
+    <p class="checking-title">Consultation blockchain…</p>
+    <p class="checking-sub" id="checkingId">BF-01-2026</p>
+
+    <div class="chain-steps">
+      <div class="chain-step" id="cs1">
+        <div class="cs-icon"></div>
+        Lecture du registre Polygon
+      </div>
+      <div class="chain-step" id="cs2">
+        <div class="cs-icon"></div>
+        Vérification du hash SHA-256
+      </div>
+      <div class="chain-step" id="cs3">
+        <div class="cs-icon"></div>
+        Validation de la signature
+      </div>
+      <div class="chain-step" id="cs4">
+        <div class="cs-icon"></div>
+        Résultat disponible
+      </div>
+      <div class="chain-hash" id="chainHashAnim">0x…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 3 — RÉSULTAT
+══════════════════════════════ -->
+<div class="screen" id="screenResult">
+  <div class="result-screen">
+    <div class="result-hero" id="resultHero">
+      <div class="result-big-icon" id="resultBigIcon"></div>
+      <p class="result-hero-title" id="resultHeroTitle"></p>
+      <p class="result-hero-sub" id="resultHeroSub"></p>
+      <div class="result-id-badge" id="resultIdBadge"></div>
+    </div>
+
+    <div class="details-card" id="detailsCard">
+      <div class="details-card-title">Informations du diplôme</div>
+      <div id="detailRows"></div>
+    </div>
+
+    <div class="proof-card" id="proofCard" style="display:none">
+      <div class="proof-title">Preuve Blockchain</div>
+      <div class="proof-hash" id="proofHash"></div>
+      <div class="proof-network">
+        <span>Réseau: <span>Polygon Mumbai</span></span>
+        <span>Bloc: <span id="proofBlock"></span></span>
+      </div>
+    </div>
+
+    <div class="warning-card" id="warningCard" style="display:none">
+      <h3>⚠️ Attention</h3>
+      <p>Ce diplôme n'est pas enregistré dans le registre DiploChain. Il peut s'agir d'un faux diplôme ou d'un identifiant erroné. Ne pas valider ce candidat sur la base de ce document.</p>
+    </div>
+
+    <div class="action-btns">
+      <button class="btn-action btn-back" onclick="showScreen('screenSearch')">← Retour</button>
+      <button class="btn-action btn-new" onclick="nouvelleVerif()">+ Nouveau</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 4 — HISTORIQUE
+══════════════════════════════ -->
+<div class="screen" id="screenHistory">
+  <div class="history-screen">
+    <div class="history-header-row">
+      <h2 class="history-title">Historique</h2>
+      <button class="btn-clear" onclick="clearHistory()">Effacer tout</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+</div>
+
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-search" onclick="navTo('screenSearch','nav-search')">
+    <span class="nav-icon">🔍</span>
+    <span class="nav-label">Vérifier</span>
+  </div>
+  <div class="nav-item" id="nav-history" onclick="navTo('screenHistory','nav-history')">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Historique</span>
+  </div>
+  <div class="nav-item" id="nav-info" onclick="showInfo()">
+    <span class="nav-icon">ℹ️</span>
+    <span class="nav-label">À propos</span>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+const DB_KEY = 'diplochain_registry';
+const HIST_KEY = 'diplochain_history';
+
+const defaultDiplomes = [
+  { id:'BF-01-2026', nom:'Ouedraogo Abdoulaye', matricule:'UO-2022-1142', filiere:'Génie Informatique', mention:'Bien', niveau:'Licence (Bac+3)', annee:2025, etablissement:'Université Ouaga I', hash:'a3f9c2b841e7d506f2c8a1b39e4d7f20c5e8b14a2f6d9c03e1b7a54f8e2c6d9a', valide:true },
+  { id:'BF-02-2026', nom:'Kaboré Fatimata', matricule:'UO-2021-0887', filiere:'Médecine Générale', mention:'Très Bien', niveau:'Doctorat (Bac+8)', annee:2025, etablissement:'Université Ouaga I', hash:'b7e1d2a534f8c90b2e5a3c7f1d4e8b20a9f3c6d0e2b5a8f7e1d4c9b3a6f0e2d', valide:true },
+  { id:'BF-03-2026', nom:'Sawadogo Ibrahim', matricule:'UO-2020-2234', filiere:'Droit des Affaires', mention:'Assez Bien', niveau:'Master (Bac+5)', annee:2026, etablissement:'Université Ouaga I', hash:'c2d5f8a1b4e7c0d3f6a9b2e5c8d1f4a7b0e3c6d9f2a5b8e1c4d7f0a3b6e9c2d', valide:true },
+  { id:'BF-04-2026', nom:'Traoré Aminata', matricule:'UO-2019-3301', filiere:'Économie Gestion', mention:'Passable', niveau:'Licence (Bac+3)', annee:2024, etablissement:'Université Ouaga I', hash:'d1e4g7b0c3f6a9d2e5g8c1f4a7d0e3g6b9c2f5a8d1e4g7b0c3f6a9d2e5g8c1f', valide:true },
+];
+
+function getRegistry() {
+  try { const d = localStorage.getItem(DB_KEY); return d ? JSON.parse(d) : [...defaultDiplomes]; }
+  catch { return [...defaultDiplomes]; }
+}
+
+function getHistory() {
+  try { const d = localStorage.getItem(HIST_KEY); return d ? JSON.parse(d) : []; }
+  catch { return []; }
+}
+function saveHistory(h) {
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(h)); } catch {}
+}
+function addHistory(entry) {
+  const h = getHistory();
+  h.unshift({ ...entry, time: Date.now() });
+  saveHistory(h.slice(0, 20));
+  updateStats();
+  renderRecent();
+}
+
+// ════════════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('statusTime').textContent =
+    now.getHours().toString().padStart(2,'0') + ':' +
+    now.getMinutes().toString().padStart(2,'0');
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function navTo(screenId, navId) {
+  showScreen(screenId);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(navId).classList.add('active');
+  if (screenId === 'screenHistory') renderHistory();
+}
+
+// ════════════════════════════════════════════
+// STATS
+// ════════════════════════════════════════════
+function updateStats() {
+  const h = getHistory();
+  const valides = h.filter(x => x.valide).length;
+  const faux = h.filter(x => !x.valide).length;
+  const total = h.length;
+  document.getElementById('statTotal').textContent = total || getRegistry().length;
+  document.getElementById('statValides').textContent = valides || getRegistry().length;
+  document.getElementById('statFaux').textContent = faux;
+}
+
+// ════════════════════════════════════════════
+// RECENT LIST
+// ════════════════════════════════════════════
+function renderRecent() {
+  const h = getHistory().slice(0, 4);
+  const list = document.getElementById('recentList');
+  if (!h.length) {
+    list.innerHTML = `<div style="padding:16px;text-align:center;font-size:0.825rem;color:var(--gray-400)">Aucune vérification récente</div>`;
+    return;
+  }
+  list.innerHTML = h.map(item => `
+    <div class="recent-item" onclick="replayVerif('${item.id}')">
+      <div class="recent-dot ${item.valide ? 'ok' : 'bad'}"></div>
+      <div class="recent-info">
+        <div class="recent-name">${item.nom || item.id}</div>
+        <div class="recent-id">${item.id}</div>
+      </div>
+      <span class="recent-badge ${item.valide ? 'ok' : 'bad'}">${item.valide ? '✓ Valide' : '✗ Faux'}</span>
+    </div>
+  `).join('');
+}
+
+function replayVerif(id) {
+  document.getElementById('mobileInput').value = id;
+  lancerVerif();
+}
+
+// ════════════════════════════════════════════
+// VERIFICATION FLOW
+// ════════════════════════════════════════════
+let currentId = '';
+
+function setAndVerify(id) {
+  document.getElementById('mobileInput').value = id;
+  lancerVerif();
+}
+
+function lancerVerif() {
+  const id = document.getElementById('mobileInput').value.trim().toUpperCase();
+  if (!id) return;
+  currentId = id;
+
+  showScreen('screenChecking');
+  document.getElementById('checkingId').textContent = id;
+
+  // Reset steps
+  ['cs1','cs2','cs3','cs4'].forEach(s => {
+    const el = document.getElementById(s);
+    el.className = 'chain-step';
+    el.querySelector('.cs-icon').textContent = '';
+  });
+
+  // Animate hash
+  let tick = 0;
+  const hashEl = document.getElementById('chainHashAnim');
+  const hashInterval = setInterval(() => {
+    const fake = Array.from({length:16}, () =>
+      Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
+    hashEl.textContent = '0x' + fake + '…';
+    if (++tick > 10) clearInterval(hashInterval);
+  }, 150);
+
+  // Animate steps
+  animSteps(['cs1','cs2','cs3','cs4'], () => {
+    setTimeout(() => afficherResultat(id), 300);
+  });
+}
+
+function animSteps(steps, cb) {
+  let i = 0;
+  function next() {
+    if (i > 0) {
+      const prev = document.getElementById(steps[i-1]);
+      prev.className = 'chain-step done';
+      prev.querySelector('.cs-icon').textContent = '✓';
+    }
+    if (i < steps.length) {
+      document.getElementById(steps[i]).className = 'chain-step active';
+      i++;
+      setTimeout(next, 500);
+    } else { cb(); }
+  }
+  next();
+}
+
+function afficherResultat(id) {
+  const registry = getRegistry();
+  const d = registry.find(x => x.id === id);
+  const hero = document.getElementById('resultHero');
+  const bigIcon = document.getElementById('resultBigIcon');
+  const heroTitle = document.getElementById('resultHeroTitle');
+  const heroSub = document.getElementById('resultHeroSub');
+  const idBadge = document.getElementById('resultIdBadge');
+  const detailRows = document.getElementById('detailRows');
+  const proofCard = document.getElementById('proofCard');
+  const warningCard = document.getElementById('warningCard');
+
+  if (d && d.valide) {
+    hero.className = 'result-hero valid';
+    bigIcon.textContent = '✓';
+    heroTitle.textContent = 'Diplôme Authentique';
+    heroSub.textContent = 'Certifié sur la blockchain Polygon';
+    idBadge.textContent = d.id;
+    detailRows.innerHTML = `
+      <div class="detail-row"><span class="detail-label">Titulaire</span><span class="detail-value">${d.nom}</span></div>
+      <div class="detail-row"><span class="detail-label">Filière</span><span class="detail-value">${d.filiere}</span></div>
+      <div class="detail-row"><span class="detail-label">Niveau</span><span class="detail-value">${d.niveau}</span></div>
+      <div class="detail-row"><span class="detail-label">Mention</span><span class="detail-value">${d.mention}</span></div>
+      <div class="detail-row"><span class="detail-label">Année</span><span class="detail-value">${d.annee}</span></div>
+      <div class="detail-row"><span class="detail-label">Matricule</span><span class="detail-value">${d.matricule}</span></div>
+      <div class="detail-row"><span class="detail-label">Établissement</span><span class="detail-value">${d.etablissement}</span></div>
+    `;
+    document.getElementById('proofHash').textContent = d.hash;
+    document.getElementById('proofBlock').textContent = '#' + Math.floor(Math.random()*100000+10000);
+    proofCard.style.display = 'block';
+    warningCard.style.display = 'none';
+
+    addHistory({ id: d.id, nom: d.nom, valide: true });
+  } else {
+    hero.className = 'result-hero invalid';
+    bigIcon.textContent = '✗';
+    heroTitle.textContent = 'Non Reconnu';
+    heroSub.textContent = 'Ce diplôme n\'existe pas dans le registre';
+    idBadge.textContent = id;
+    detailRows.innerHTML = `
+      <div class="detail-row">
+        <span class="detail-label">ID recherché</span>
+        <span class="detail-value" style="color:var(--red)">${id}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Statut</span>
+        <span class="detail-value" style="color:var(--red)">NON ENREGISTRÉ</span>
+      </div>
+    `;
+    proofCard.style.display = 'none';
+    warningCard.style.display = 'block';
+
+    addHistory({ id, nom: 'Inconnu', valide: false });
+  }
+
+  showScreen('screenResult');
+}
+
+function nouvelleVerif() {
+  document.getElementById('mobileInput').value = '';
+  showScreen('screenSearch');
+  navTo('screenSearch', 'nav-search');
+}
+
+function scanQR() {
+  alert('📷 Dans la version finale, cette fonction ouvre la caméra pour scanner un QR code DiploChain.');
+}
+
+// ════════════════════════════════════════════
+// HISTORY SCREEN
+// ════════════════════════════════════════════
+function renderHistory() {
+  const h = getHistory();
+  const list = document.getElementById('historyList');
+  if (!h.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--gray-400)">
+      <div style="font-size:2rem;margin-bottom:10px">📋</div>
+      <p style="font-size:0.875rem">Aucune vérification enregistrée</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = h.map((item, i) => `
+    <div class="history-item" onclick="replayVerif('${item.id}')">
+      <div class="history-result-dot ${item.valide ? 'ok' : 'bad'}"></div>
+      <div class="history-info">
+        <div class="history-name">${item.nom || item.id}</div>
+        <div class="history-meta">${item.id}</div>
+      </div>
+      <div class="history-time">${timeAgo(item.time)}</div>
+    </div>
+  `).join('');
+}
+
+function clearHistory() {
+  if (confirm('Effacer tout l\'historique ?')) {
+    saveHistory([]);
+    updateStats();
+    renderRecent();
+    renderHistory();
+  }
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  if (diff < 60000) return 'À l\'instant';
+  if (diff < 3600000) return Math.floor(diff/60000) + ' min';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
+  return Math.floor(diff/86400000) + 'j';
+}
+
+function showInfo() {
+  alert('DiploChain v1.0\nApplication mobile recruteur\nMIABE Hackathon 2026\n\nVérifiez l\'authenticité des diplômes en 3 secondes grâce à la blockchain Polygon.');
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+updateStats();
+renderRecent();
+</script>
+</body>
+</html>
